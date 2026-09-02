@@ -1,0 +1,509 @@
+<!doctype html>
+<title>Migración FW-ETEC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --paper:#f5f6f3;
+    --paper-raised:#ffffff;
+    --ink:#1a2230;
+    --muted:#5b6470;
+    --border:#d9dcd4;
+    --accent:#0f7a6c;
+    --accent-soft:#e3f1ee;
+    --legacy:#b5651d;
+    --legacy-soft:#f6e9da;
+    --danger:#a83c3c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#11161b;
+      --paper-raised:#181f26;
+      --ink:#e7ece7;
+      --muted:#8b96a1;
+      --border:#2a333b;
+      --accent:#33cbb2;
+      --accent-soft:#173430;
+      --legacy:#e0a458;
+      --legacy-soft:#332615;
+      --danger:#e37b7b;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#11161b;
+    --paper-raised:#181f26;
+    --ink:#e7ece7;
+    --muted:#8b96a1;
+    --border:#2a333b;
+    --accent:#33cbb2;
+    --accent-soft:#173430;
+    --legacy:#e0a458;
+    --legacy-soft:#332615;
+    --danger:#e37b7b;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    line-height:1.55;
+    padding:56px 24px 96px;
+  }
+  main{max-width:900px;margin:0 auto;}
+  code, .mono{font-family:'IBM Plex Mono', ui-monospace, monospace;}
+
+  header.page{margin-bottom:44px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 12px;
+  }
+  h1{
+    font-size:clamp(28px,4vw,40px);
+    line-height:1.15;
+    margin:0 0 14px;
+    text-wrap:balance;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:16px;
+    max-width:62ch;
+    margin:0 0 20px;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+  }
+  .chip{
+    border:1px solid var(--border);
+    background:var(--paper-raised);
+    border-radius:5px;
+    padding:5px 10px;
+    color:var(--muted);
+  }
+  .chip strong{color:var(--ink);font-weight:600;}
+
+  h2{
+    font-size:21px;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .section-intro{
+    color:var(--muted);
+    font-size:15px;
+    max-width:68ch;
+    margin:0 0 24px;
+  }
+  section{margin-top:56px;}
+
+  figure{margin:0;}
+  figure.diagram{
+    background:var(--paper-raised);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 20px 8px;
+  }
+  figcaption{
+    font-size:13px;
+    color:var(--muted);
+    padding:14px 4px 4px;
+    border-top:1px solid var(--border);
+    margin-top:14px;
+  }
+  svg text{font-family:'IBM Plex Mono', monospace;}
+
+  .callout{
+    display:flex;
+    gap:14px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent);
+    border-radius:10px;
+    padding:16px 18px;
+    margin:26px 0 0;
+  }
+  .callout .mark{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    color:var(--accent);
+    font-size:13px;
+    flex:none;
+    padding-top:2px;
+  }
+  .callout p{margin:0;font-size:14.5px;}
+  .callout strong{color:var(--ink);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:16px;
+    margin-top:22px;
+  }
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 20px 20px;
+  }
+  .card h3{
+    font-size:14.5px;
+    margin:0 0 4px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .card h3 .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.04em;
+    color:var(--muted);
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .card ul{margin:12px 0 0;padding:0;list-style:none;}
+  .card li{
+    display:grid;
+    grid-template-columns:16px 1fr;
+    gap:8px;
+    font-size:13.5px;
+    padding:7px 0;
+    border-top:1px solid var(--border);
+  }
+  .card li:first-of-type{border-top:none;padding-top:2px;}
+  .card li::before{
+    content:"";
+    width:9px;height:9px;
+    margin-top:4px;
+    border:1.5px solid var(--muted);
+    border-radius:2px;
+  }
+  .card li .where{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:2px;
+  }
+  .card li code{
+    background:var(--accent-soft);
+    color:var(--accent);
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:11.5px;
+  }
+
+  ol.phases{
+    counter-reset:phase;
+    list-style:none;
+    margin:22px 0 0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  ol.phases li{
+    counter-increment:phase;
+    position:relative;
+    padding:0 0 26px 44px;
+    border-left:2px solid var(--border);
+    margin-left:13px;
+  }
+  ol.phases li:last-child{border-left-color:transparent;padding-bottom:0;}
+  ol.phases li::before{
+    content:counter(phase);
+    position:absolute;
+    left:-13px;
+    top:0;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  ol.phases h3{font-size:15px;margin:0 0 5px;}
+  ol.phases p{margin:0;font-size:14px;color:var(--muted);max-width:66ch;}
+  ol.phases p strong{color:var(--ink);font-weight:600;}
+
+  .rollback{
+    margin-top:20px;
+    padding:14px 18px;
+    border:1px dashed var(--legacy);
+    background:var(--legacy-soft);
+    border-radius:10px;
+    font-size:13.5px;
+  }
+  .rollback strong{color:var(--legacy);font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.03em;text-transform:uppercase;}
+
+  footer{
+    margin-top:64px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    font-size:12.5px;
+    color:var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+  }
+</style>
+
+<main>
+
+<header class="page">
+  <p class="eyebrow">INFRA-RED Escuela — plan de migración</p>
+  <h1>De FortiGate 600C a OPNsense + MikroTik</h1>
+  <p class="subtitle">FW-ETEC, el firewall donado y fuera de soporte, se reemplaza por dos equipos con roles separados: OPNsense como borde/filtrado y un MikroTik CCR2004-16G-2S+ como núcleo de ruteo inter-VLAN. Esta página junta el diagrama de la migración y todo lo que hay que sacar del Forti antes de cortar.</p>
+  <div class="meta-row">
+    <span class="chip">Estado: <strong>en planificación</strong></span>
+    <span class="chip">Equipo saliente: <strong>FG600C3912802207</strong></span>
+    <span class="chip">Firmware actual: <strong>v5.4.5 build1138</strong></span>
+    <span class="chip">Actualizado: <strong>02/09/2026</strong></span>
+  </div>
+</header>
+
+<section id="diagrama">
+  <h2>La forma de la migración</h2>
+  <p class="section-intro">Hoy un solo equipo hace dos trabajos distintos. Después, cada trabajo tiene su propio equipo — ninguno hace de más.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 980 500" role="img" aria-label="Diagrama antes y después: hoy el FortiGate 600C hace de firewall y de ruteador inter-VLAN en un solo equipo; después, OPNsense filtra el tráfico de internet y un MikroTik CCR2004 rutea entre VLANs a velocidad de línea.">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <!-- divider -->
+      <line x1="490" y1="20" x2="490" y2="480" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="3 6"/>
+      <text x="245" y="34" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1" fill="currentColor" opacity="0.55">ANTES</text>
+      <text x="735" y="34" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1" fill="currentColor" opacity="0.55">DESPUÉS</text>
+
+      <!-- ===== ANTES (left) ===== -->
+      <text x="245" y="70" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">internet</text>
+      <line x1="245" y1="78" x2="245" y2="108" stroke="currentColor" marker-end="url(#arrow)"/>
+      <text x="255" y="98" font-size="10" fill="currentColor" opacity="0.6">NAT + reglas</text>
+
+      <rect x="120" y="110" width="250" height="60" rx="8" fill="var(--legacy-soft)" stroke="var(--legacy)" stroke-width="1.5"/>
+      <text x="245" y="134" text-anchor="middle" font-size="13" font-weight="700" fill="var(--legacy)">FortiGate 600C</text>
+      <text x="245" y="152" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">firewall + filtrado</text>
+      <text x="245" y="164" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.75">+ ruteo inter-VLAN</text>
+
+      <line x1="245" y1="170" x2="245" y2="210" stroke="currentColor" marker-end="url(#arrow)"/>
+      <text x="256" y="196" font-size="10" fill="currentColor" opacity="0.6">trunk 802.1Q</text>
+
+      <rect x="140" y="212" width="210" height="34" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.4"/>
+      <text x="245" y="234" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.8">switch core</text>
+
+      <!-- vlans before -->
+      <g font-size="10">
+        <line x1="245" y1="246" x2="150" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="245" y1="246" x2="212" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="245" y1="246" x2="278" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="245" y1="246" x2="340" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+
+        <rect x="112" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="150" y="309" text-anchor="middle" opacity="0.8">admin</text>
+        <text x="150" y="321" text-anchor="middle" opacity="0.55">VLAN 10</text>
+
+        <rect x="174" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="212" y="309" text-anchor="middle" opacity="0.8">aulas</text>
+        <text x="212" y="321" text-anchor="middle" opacity="0.55">VLAN 20</text>
+
+        <rect x="240" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="278" y="306" text-anchor="middle" opacity="0.8">wifi</text>
+        <text x="278" y="317" text-anchor="middle" opacity="0.8">alumnos</text>
+        <text x="278" y="328" text-anchor="middle" opacity="0.55">VLAN 30</text>
+
+        <rect x="302" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="340" y="306" text-anchor="middle" opacity="0.8">wifi</text>
+        <text x="340" y="317" text-anchor="middle" opacity="0.8">docentes</text>
+        <text x="340" y="328" text-anchor="middle" opacity="0.55">VLAN 40</text>
+      </g>
+
+      <line x1="150" y1="366" x2="340" y2="366" stroke="var(--legacy)" stroke-width="1.5" stroke-dasharray="2 5"/>
+      <text x="245" y="392" text-anchor="middle" font-size="11" fill="var(--legacy)" font-weight="600">1 equipo → 2 funciones</text>
+      <text x="245" y="408" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">si falla, se caen las dos</text>
+
+      <!-- ===== DESPUÉS (right) ===== -->
+      <text x="735" y="70" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">internet</text>
+      <line x1="735" y1="78" x2="735" y2="108" stroke="currentColor" marker-end="url(#arrow)"/>
+      <text x="745" y="98" font-size="10" fill="currentColor" opacity="0.6">NAT + reglas</text>
+
+      <rect x="635" y="110" width="200" height="46" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="735" y="130" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent)">OPNsense (VM)</text>
+      <text x="735" y="146" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">firewall + filtrado</text>
+
+      <line x1="735" y1="156" x2="735" y2="194" stroke="currentColor" marker-end="url(#arrow)"/>
+      <text x="745" y="180" font-size="10" fill="currentColor" opacity="0.6">trunk 802.1Q</text>
+
+      <rect x="620" y="196" width="230" height="46" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="735" y="216" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent)">MikroTik CCR2004</text>
+      <text x="735" y="232" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.75">core · ruteo inter-VLAN</text>
+
+      <line x1="735" y1="242" x2="735" y2="270" stroke="currentColor" marker-end="url(#arrow)"/>
+      <text x="745" y="260" font-size="10" fill="currentColor" opacity="0.6">línea de velocidad</text>
+
+      <!-- vlans after -->
+      <g font-size="10">
+        <line x1="735" y1="270" x2="640" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="735" y1="270" x2="702" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="735" y1="270" x2="768" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+        <line x1="735" y1="270" x2="830" y2="290" stroke="currentColor" stroke-opacity="0.4"/>
+
+        <rect x="602" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="640" y="309" text-anchor="middle" opacity="0.8">admin</text>
+        <text x="640" y="321" text-anchor="middle" opacity="0.55">VLAN 10</text>
+
+        <rect x="664" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="702" y="309" text-anchor="middle" opacity="0.8">aulas</text>
+        <text x="702" y="321" text-anchor="middle" opacity="0.55">VLAN 20</text>
+
+        <rect x="730" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="768" y="306" text-anchor="middle" opacity="0.8">wifi</text>
+        <text x="768" y="317" text-anchor="middle" opacity="0.8">alumnos</text>
+        <text x="768" y="328" text-anchor="middle" opacity="0.55">VLAN 30</text>
+
+        <rect x="792" y="292" width="76" height="40" rx="5" fill="var(--paper)" stroke="currentColor" stroke-opacity="0.4"/>
+        <text x="830" y="306" text-anchor="middle" opacity="0.8">wifi</text>
+        <text x="830" y="317" text-anchor="middle" opacity="0.8">docentes</text>
+        <text x="830" y="328" text-anchor="middle" opacity="0.55">VLAN 40</text>
+      </g>
+
+      <line x1="640" y1="366" x2="830" y2="366" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2 5"/>
+      <text x="735" y="392" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="600">2 equipos → 2 funciones</text>
+      <text x="735" y="408" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">cada uno dedicado a la suya</text>
+
+      <!-- forti as cold spare, bottom -->
+      <rect x="150" y="440" width="190" height="34" rx="6" fill="none" stroke="var(--legacy)" stroke-opacity="0.6" stroke-dasharray="3 4"/>
+      <text x="245" y="461" text-anchor="middle" font-size="10.5" fill="var(--legacy)" opacity="0.9">Forti 600C: respaldo frío 2–4 semanas</text>
+    </svg>
+    <figcaption>Hoy el FortiGate 600C concentra firewall y ruteo entre VLANs en un mismo equipo: si falla, cae toda la red. Después, OPNsense filtra el tráfico hacia internet y el MikroTik CCR2004 rutea entre VLANs a velocidad de línea — cada función en su propio equipo. El Forti queda cableado como respaldo frío durante el período de estabilización.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <span class="mark">clave</span>
+    <p><strong>Un backup de configuración del Forti no sirve para "restaurar" en OPNsense o RouterOS</strong> — son formatos completamente distintos. La migración real es leer cada bloque de configuración del Forti abajo y traducirlo a mano a OPNsense (reglas + alias) y a RouterOS (VLANs + rutas). El backup solo sirve como respaldo de emergencia del propio Forti.</p>
+  </div>
+</section>
+
+<section id="checklist">
+  <h2>Qué extraer del Forti 600C antes del corte</h2>
+  <p class="section-intro">Organizado por bloque de configuración. Todo se puede ver por GUI, pero el camino más rápido y completo es <code>System &gt; Configuration Revisions</code> o CLI vía consola/SSH con <code>show full-configuration</code>.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>WAN / internet <span class="tag">config system interface</span></h3>
+      <ul>
+        <li><span>IP pública del WAN (o modo DHCP/PPPoE) y máscara<span class="where">interfaz <code>wan1</code></span></span></li>
+        <li><span>Gateway y servidores DNS<span class="where"><code>config system dns</code></span></span></li>
+        <li><span>Usuario/contraseña si es PPPoE</span></li>
+        <li><span>Segundo enlace o failover, si existe<span class="where"><code>config system virtual-wan-link</code></span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>LAN / VLANs <span class="tag">config system interface</span></h3>
+      <ul>
+        <li><span>VLAN ID, subred y gateway de cada zona (admin, aulas, wifi alumnos, wifi docentes, servers)</span></li>
+        <li><span>Qué puertos físicos van a cada zona<span class="where">interfaces tipo <code>switch</code>/hardware switch</span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>DHCP <span class="tag">config system dhcp server</span></h3>
+      <ul>
+        <li><span>Rango y lease time por VLAN</span></li>
+        <li><span>DNS y dominio entregados por DHCP</span></li>
+        <li><span>Reservas fijas: impresoras, APs, servidores<span class="where"><code>config reserved-address</code></span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>NAT / expuesto a internet <span class="tag">config firewall vip</span></h3>
+      <ul>
+        <li><span>Virtual IPs: cualquier servicio publicado (servidor web, cámaras, RDP, mail)</span></li>
+        <li><span>Puerto externo → IP:puerto interno de cada regla</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Políticas de firewall <span class="tag">config firewall policy</span></h3>
+      <ul>
+        <li><span>Listado completo: origen, destino, servicio, acción — es la lógica a replicar en OPNsense</span></li>
+        <li><span>Objetos usados: direcciones, grupos, servicios, horarios<span class="where"><code>address</code> / <code>addrgrp</code> / <code>service custom</code> / <code>schedule</code></span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>VPN <span class="tag">config vpn ipsec</span></h3>
+      <ul>
+        <li><span>Túneles site-to-site: IP del peer, PSK o certificado, subredes locales/remotas, propuestas fase 1/2</span></li>
+        <li><span>SSL-VPN de administración remota, si se usa<span class="where"><code>config vpn ssl settings</code></span></span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Perfiles UTM activos <span class="tag">config webfilter / ips</span></h3>
+      <ul>
+        <li><span>Qué categorías bloquea hoy el filtro web — piso mínimo a igualar en OPNsense</span></li>
+        <li><span>Antivirus / IPS activos y sobre qué políticas</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Administración <span class="tag">config system admin</span></h3>
+      <ul>
+        <li><span>Usuarios admin y hosts confiables</span></li>
+        <li><span>SNMP, si algo lo consulta hoy<span class="where"><code>config system snmp community</code></span></span></li>
+        <li><span>Syslog remoto y servidor NTP</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="corte">
+  <h2>Plan de corte</h2>
+  <p class="section-intro">El orden importa: todo lo que se pueda armar en paralelo, se arma antes de tocar producción.</p>
+
+  <ol class="phases">
+    <li>
+      <h3>Preparar en paralelo</h3>
+      <p>Cargar en OPNsense las reglas y objetos extraídos, y armar las VLANs + trunk en el MikroTik, <strong>sin conectarlos todavía a la red en uso</strong>. Todo esto se prueba en un puerto libre, no en producción.</p>
+    </li>
+    <li>
+      <h3>Replicar DHCP antes de cortar</h3>
+      <p>Los scopes y reservas tienen que existir en OPNsense/RouterOS <strong>antes</strong> de apagar el Forti — si no, los clientes se quedan sin IP al primer renew.</p>
+    </li>
+    <li>
+      <h3>Ventana de corte</h3>
+      <p>Fuera de horario escolar: desconectar el WAN del Forti y pasarlo a OPNsense; conectar el trunk del MikroTik al switch core. El Forti queda apagado pero <strong>cableado</strong> como plan B inmediato.</p>
+    </li>
+    <li>
+      <h3>Verificación por VLAN</h3>
+      <p>En cada zona: salida a internet, resolución DNS, acceso a recursos internos, los port-forwards críticos y las VPN site-to-site si las hay.</p>
+    </li>
+    <li>
+      <h3>Estabilización</h3>
+      <p>El Forti se mantiene como <strong>respaldo frío</strong> 2 a 4 semanas. Recién después de ese período sin incidentes se lo da de baja definitivamente.</p>
+    </li>
+  </ol>
+
+  <div class="rollback">
+    <strong>Plan B</strong> — si algo falla en la ventana de corte, revertir es solo recablear WAN y trunk de vuelta al Forti: por eso no se lo apaga del todo hasta confirmar estabilidad.
+  </div>
+</section>
+
+<footer>
+  Decisión de arquitectura y este plan quedan en el proyecto INFRA-RED Escuela.
+</footer>
+
+</main>
